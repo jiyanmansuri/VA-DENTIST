@@ -15,7 +15,9 @@ app.use(express.json());
  */
 app.post("/functions/check-availability", async (req, res) => {
   try {
-    const { call } = req.body; // Retell sends call context in every request
+    const call = req.body.call;
+    const args = req.body.args || req.body; // handles both "args only" and full payload formats
+
     const slots = await getAvailableSlots({ daysAhead: 5 });
 
     if (slots.length === 0) {
@@ -30,13 +32,12 @@ app.post("/functions/check-availability", async (req, res) => {
       });
     }
 
-    // Format for the agent to read out naturally
-   const readable = slots
-  .map((s, i) => `Option ${i + 1}: ${new Date(s.iso).toLocaleString("en-US", {
-    weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
-    timeZone: "America/Chicago", // change to the practice's real timezone
-  })}`)
-  .join(". ");
+    const readable = slots
+      .map((s, i) => `Option ${i + 1}: ${new Date(s.iso).toLocaleString("en-US", {
+        weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
+        timeZone: "America/Chicago", // change to the practice's real timezone
+      })}`)
+      .join(". ");
 
     res.json({ result: readable, raw_slots: slots });
   } catch (err) {
@@ -47,8 +48,9 @@ app.post("/functions/check-availability", async (req, res) => {
 
 app.post("/functions/book-appointment", async (req, res) => {
   try {
-    const { call, args } = req.body;
-    // args should include: iso_start_time, patient_name, patient_phone, patient_email (optional), notes (optional)
+    const call = req.body.call;
+    const args = req.body.args || req.body; // handles both payload formats
+
     const booking = await bookSlot({
       isoStartTime: args.iso_start_time,
       patient: {
