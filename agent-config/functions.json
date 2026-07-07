@@ -1,0 +1,49 @@
+[
+  {
+    "name": "check_availability",
+    "description": "Check open appointment slots for the next few days. Call this whenever the caller wants to book an appointment, before asking for their details.",
+    "url": "https://YOUR-DEPLOYED-URL/functions/check-availability",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    },
+    "speak_during_execution": true,
+    "speak_after_execution": true,
+    "execution_message": "Let me check what's available."
+  },
+  {
+    "name": "book_appointment",
+    "description": "Book a confirmed appointment slot for the patient. Only call this after the caller has chosen a specific time from check_availability and you have collected their name and phone number.",
+    "url": "https://YOUR-DEPLOYED-URL/functions/book-appointment",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "iso_start_time": {
+          "type": "string",
+          "description": "The exact ISO 8601 timestamp of the slot the caller chose, taken from the check_availability result."
+        },
+        "patient_name": {
+          "type": "string",
+          "description": "Full name of the patient."
+        },
+        "patient_phone": {
+          "type": "string",
+          "description": "Patient's callback phone number."
+        },
+        "patient_email": {
+          "type": "string",
+          "description": "Patient's email address, if provided."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Reason for visit or any relevant notes, e.g. 'new patient consult' or 'tooth pain follow-up'."
+        }
+      },
+      "required": ["iso_start_time", "patient_name", "patient_phone"]
+    },
+    "speak_during_execution": true,
+    "speak_after_execution": true,
+    "execution_message": "Got it, booking that now."
+  }
+]
