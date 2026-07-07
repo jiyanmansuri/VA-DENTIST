@@ -49,15 +49,15 @@ app.post("/functions/check-availability", async (req, res) => {
 app.post("/functions/book-appointment", async (req, res) => {
   try {
     const call = req.body.call;
-    const args = req.body.args || req.body; // handles both payload formats
+    const args = req.body.args || req.body;
 
     const booking = await bookSlot({
-      isoStartTime: args.iso_start_time,
+      isoStartTime: args.selected_time,
       patient: {
-        name: args.patient_name,
-        phone: args.patient_phone || call?.from_number,
-        email: args.patient_email,
-        notes: args.notes,
+        name: args.full_name,
+        phone: args.phone_number || call?.from_number,
+        email: args.email,
+        notes: args.visit_type,
       },
     });
 
@@ -65,12 +65,12 @@ app.post("/functions/book-appointment", async (req, res) => {
       callId: call?.call_id,
       outcome: "booked",
       callerPhone: call?.from_number,
-      transcriptSnippet: `Booked appointment for ${args.patient_name}`,
+      transcriptSnippet: `Booked appointment for ${args.full_name}`,
       bookingId: booking.id || booking.uid,
     });
 
     res.json({
-      result: `Booking confirmed for ${args.patient_name} at ${args.iso_start_time}. Confirmation will be sent by SMS/email.`,
+      result: `Booking confirmed for ${args.full_name} at ${args.selected_time}. Confirmation will be sent by SMS/email.`,
     });
   } catch (err) {
     console.error(err);
@@ -83,7 +83,6 @@ app.post("/functions/book-appointment", async (req, res) => {
     res.status(500).json({ result: "Booking failed. Apologize and offer to transfer to the front desk." });
   }
 });
-
 /**
  * ============================================================
  * 2. CALL-EVENT WEBHOOK
