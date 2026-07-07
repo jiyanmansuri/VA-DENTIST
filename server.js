@@ -31,11 +31,12 @@ app.post("/functions/check-availability", async (req, res) => {
     }
 
     // Format for the agent to read out naturally
-    const readable = slots
-      .map((s, i) => `Option ${i + 1}: ${new Date(s.iso).toLocaleString("en-IN", {
-        weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
-      })}`)
-      .join(". ");
+   const readable = slots
+  .map((s, i) => `Option ${i + 1}: ${new Date(s.iso).toLocaleString("en-US", {
+    weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit",
+    timeZone: "America/Chicago", // change to the practice's real timezone
+  })}`)
+  .join(". ");
 
     res.json({ result: readable, raw_slots: slots });
   } catch (err) {
